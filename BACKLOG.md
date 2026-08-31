@@ -1,22 +1,30 @@
 # Backlog
 
-## Next up: extend to the PINN domain
-Add a physics-informed training track and benchmark whether the Fourier ansatz
-improves PINN performance.
+This repository is the **kernel**: an isolated, data-driven benchmark of the
+Fourier-versus-local representation question. The PINN work below is a
+**separate application** that builds on this kernel. It is framed and published
+as its own PINN study, not merged into this paper.
 
-- Add a PINN training mode: minimize the PDE residual via autodiff (no or few
-  solution labels), on the same Burgers / diffusion / advection tasks.
-- Compare trial-function backbones at matched budget:
-  plain-MLP PINN (spectral-bias baseline) vs Fourier-feature MLP (Tancik /
-  Wang-Perdikaris) vs a physics-informed spectral operator (PINO-style).
-- Hypothesis (H1a/H1c applied to PINNs): Fourier features fix the spectral-bias
-  failure of plain PINNs on multi-scale / stiff PDEs and converge in fewer steps.
-- Score with the existing metrics: band-resolved error + energy fraction,
-  zero-shot resolution generalization, and the viscosity regime sweep.
-- Watch the known caveat: differentiating a high-bandwidth Fourier basis inside
-  the residual amplifies high modes (|k|^order); sweep the feature bandwidth sigma.
+## Next (separate study): Fourier ansatz inside a PINN
+Question: does a Fourier representation improve physics-informed training over
+the standard backbone?
 
-## Also open (from the paper's future-work section)
+- Mapping note: a classic PINN uses neither a CNN nor an FNO but a coordinate
+  MLP trained on the PDE residual. The two Fourier directions to test are
+  (i) a Fourier-feature MLP ansatz (mesh-free, aimed at the spectral-bias
+  failure of plain PINNs) and (ii) a physics-informed spectral operator
+  (PINO = FNO + residual loss).
+- Baselines at matched budget: plain-MLP PINN, Fourier-feature MLP PINN, PINO.
+- Caveat this kernel did NOT stress: the residual loss differentiates the
+  network, so a high-bandwidth Fourier basis gets amplified by |k|^order and can
+  destabilize training. Sweeping the feature bandwidth sigma is the open risk,
+  and is why the PINN result does not follow automatically from this kernel.
+- Reuse the kernel metrics (band-resolved error, resolution generalization,
+  regime sweep) and add PINN-specific axes: convergence speed and residual
+  stability.
+- Deliver as a separate repo/paper that cites this kernel as its foundation.
+
+## Also open (this kernel's own future work)
 - Full nu-sweep with error bars to pin the regime boundary nu*.
 - Learned Track B comparisons (grating-frequency regression, global phase).
 - Data-efficiency curves (H1c).
