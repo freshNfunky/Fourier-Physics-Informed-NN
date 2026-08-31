@@ -75,6 +75,10 @@ Eine methodische Feinheit ist bereits eingebaut: der bandrelative Fehler ist in 
 - Navier-Stokes 2D für die Energiespektrum-Treue (radiales PSD, log-spektrale Distanz).
 - Ablationen über FNO-Modenzahl und Fourier-Feature-Bandbreite sigma.
 
+## Whitepaper
+
+Ein IEEE-Whitepaper mit der vollstaendigen Dokumentation aller Benchmarks liegt unter `paper/`: `paper/whitepaper.tex` (Quelle, IEEEtran) und `paper/whitepaper.pdf` (kompiliert, vier Seiten). `paper/benchmarks.py` erzeugt die dokumentierten Zahlen, `paper/results.json` haelt sie als Provenance fest. Neu kompilieren mit `pdflatex paper/whitepaper.tex` (zweimal fuer Referenzen), Zahlen neu erzeugen mit `python paper/benchmarks.py`.
+
 ## Referenzen
 
 Siehe Abschnitt 13 in `SPEC.md`.
