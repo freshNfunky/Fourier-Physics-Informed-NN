@@ -9,11 +9,19 @@ __pycache__/
 venv/
 env/
 
-# Run artifacts
-results.json
+# Run artifacts (root-level runtime output only; paper/results.json is tracked)
+/results.json
 *.zip
 runs/
 outputs/
+
+# LaTeX build artifacts
+*.aux
+*.log
+*.out
+*.synctex.gz
+*.fls
+*.fdb_latexmk
 
 # OS / editor
 .DS_Store
