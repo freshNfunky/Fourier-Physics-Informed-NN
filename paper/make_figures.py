@@ -40,16 +40,31 @@ cnn_2x_s = [col("CNN1d", "rel_l2_2x", i)[1] for i in range(len(nus))]
 
 fig, ax = plt.subplots(1, 3, figsize=(7.16, 2.25))
 
-# (a) in vs 2x
+# (a) in vs 2x, log-y so the low cluster separates from the lone high CNN 2x line
 a = ax[0]
-a.errorbar(nus, fno_in, yerr=fno_in_s, color=C_FNO, marker="o", ms=4, lw=1.4, label="FNO in-dist")
-a.errorbar(nus, fno_2x, yerr=fno_2x_s, color=C_FNO, marker="s", ms=4, lw=1.4, ls="--", label="FNO 2x-res")
-a.errorbar(nus, cnn_in, yerr=cnn_in_s, color=C_CNN, marker="o", ms=4, lw=1.4, label="CNN in-dist")
-a.errorbar(nus, cnn_2x, yerr=cnn_2x_s, color=C_CNN, marker="s", ms=4, lw=1.4, ls="--", label="CNN 2x-res")
-a.set_xscale("log"); a.set_xlabel(r"viscosity $\nu$"); a.set_ylabel(r"relative $L^2$ error")
+series = [
+    ("FNO in-dist", fno_in, fno_in_s, C_FNO, "-", "o", True),
+    ("FNO 2x-res", fno_2x, fno_2x_s, C_FNO, "--", "o", False),
+    ("CNN in-dist", cnn_in, cnn_in_s, C_CNN, "-", "^", True),
+    ("CNN 2x-res", cnn_2x, cnn_2x_s, C_CNN, "--", "^", False),
+]
+for name, y, ys, c, ls, mk, fill in series:
+    a.errorbar(nus, y, yerr=ys, color=c, ls=ls, marker=mk, ms=5, lw=1.5,
+               markerfacecolor=(c if fill else "white"), markeredgecolor=c,
+               markeredgewidth=1.1, capsize=2, label=name)
+a.set_xscale("log"); a.set_yscale("log")
+a.set_xlabel(r"viscosity $\nu$"); a.set_ylabel(r"relative $L^2$ error (log)")
 a.set_title("(a) accuracy: in-dist vs 2x resolution")
-a.legend(frameon=False, loc="center left", fontsize=6.5)
+a.set_ylim(0.008, 0.5)
 a.invert_xaxis()
+a.annotate("CNN 2x-res: fails at unseen resolution", xy=(nus[2], cnn_2x[2]),
+           xytext=(nus[1], 0.4), color=C_CNN, fontsize=6.2, ha="center", va="bottom",
+           arrowprops=dict(arrowstyle="->", color=C_CNN, lw=0.9))
+a.annotate("the three lower lines nearly\ncoincide (all accurate)",
+           xy=(nus[2], fno_in[2]), xytext=(nus[1], 0.12), color="0.3", fontsize=5.6,
+           ha="center", va="center", arrowprops=dict(arrowstyle="->", color="0.5", lw=0.7))
+a.legend(frameon=False, loc="lower right", fontsize=5.8, handlelength=2.4,
+         borderaxespad=0.3, labelspacing=0.3)
 
 # (b) degradation ratio
 b = ax[1]
@@ -77,4 +92,5 @@ fig.tight_layout(pad=0.4, w_pad=1.2)
 os.makedirs(os.path.join(HERE, "figs"), exist_ok=True)
 out = os.path.join(HERE, "figs", "results.pdf")
 fig.savefig(out, bbox_inches="tight")
-print("wrote", out)
+fig.savefig(out.replace(".pdf", ".png"), bbox_inches="tight", dpi=220)
+print("wrote", out, "and .png")
