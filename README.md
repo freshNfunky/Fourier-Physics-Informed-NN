@@ -77,7 +77,7 @@ Eine methodische Feinheit ist bereits eingebaut: der bandrelative Fehler ist in 
 
 ## Whitepaper
 
-Ein IEEE-Whitepaper mit der vollstaendigen Dokumentation aller Benchmarks liegt unter `paper/`: `paper/whitepaper.tex` (Quelle, IEEEtran) und `paper/whitepaper.pdf` (kompiliert, vier Seiten). `paper/benchmarks.py` erzeugt die dokumentierten Zahlen, `paper/results.json` haelt sie als Provenance fest. Neu kompilieren mit `pdflatex paper/whitepaper.tex` (zweimal fuer Referenzen), Zahlen neu erzeugen mit `python paper/benchmarks.py`.
+Ein IEEE-Whitepaper mit der vollstaendigen Dokumentation aller Benchmarks liegt unter `paper/`: `paper/whitepaper.tex` (Quelle, IEEEtran) und `paper/whitepaper.pdf` (kompiliert, vier Seiten). `paper/benchmarks.py` erzeugt die dokumentierten Zahlen, `paper/results.json` haelt sie als Provenance fest. Zahlen neu erzeugen mit `python paper/benchmarks.py`, Abbildungen mit `python paper/make_figures.py`, dann neu kompilieren mit `pdflatex paper/whitepaper.tex` (zweimal fuer Referenzen). Das Paper enthaelt ein TikZ-Architektur-Schema (Fig. 1) und die Ergebnis-Plots (Fig. 2).
 
 ## Referenzen
 

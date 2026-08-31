@@ -6,6 +6,21 @@
 \usepackage{url}
 \usepackage[hidelinks]{hyperref}
 \usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{positioning,arrows.meta,fit,backgrounds,calc}
+\usepackage{dblfloatfix}
+
+% Let floats fill text pages instead of piling onto a float-only page after the references.
+\setcounter{topnumber}{3}
+\setcounter{bottomnumber}{2}
+\setcounter{totalnumber}{5}
+\setcounter{dbltopnumber}{3}
+\renewcommand{\topfraction}{0.96}
+\renewcommand{\bottomfraction}{0.92}
+\renewcommand{\dbltopfraction}{0.96}
+\renewcommand{\textfraction}{0.05}
+\renewcommand{\floatpagefraction}{0.72}
+\renewcommand{\dblfloatpagefraction}{0.6}
 
 \begin{document}
 
@@ -31,7 +46,36 @@ The intuition motivating this work is that the Fourier transform and the Fourier
 
 We take a different position. The productive question is conditional: under what measurable circumstances (smoothness of the target, demanded resolution generalization, data budget, frequency content of the pattern) does a Fourier representation beat local convolution, and where does the advantage invert? Answering this requires a metric that resolves error by frequency, because the standard relative $L^2$ error is dominated by the low frequency content where most signal energy sits, and therefore conceals whether a model reconstructs the high frequency tail at all.
 
-Our contributions are the following. First, we separate three Fourier constructs that are routinely conflated and benchmark each against its proper counterpart. Second, we define a band resolved error metric, reported together with a per band energy fraction that states which bands are even trustworthy. Third, we sweep a controlled discontinuity knob, the viscosity of a spectrally solved Burgers equation, to locate the regime boundary rather than declare a winner. Fourth, we ground the pattern matching thesis quantitatively through the correlation theorem. All experiments run on CPU and are fully reproducible; the code and specification accompany this paper.
+Our contributions are the following. First, we separate three Fourier constructs that are routinely conflated and benchmark each against its proper counterpart. Second, we define a band resolved error metric, reported together with a per band energy fraction that states which bands are even trustworthy. Third, we sweep a controlled discontinuity knob, the viscosity of a spectrally solved Burgers equation, to locate the regime boundary rather than declare a winner. Fourth, we ground the pattern matching thesis quantitatively through the correlation theorem. Fig.~\ref{fig:arch} sketches the benchmark architecture. All experiments run on CPU and are fully reproducible; the code and specification accompany this paper.
+
+\begin{figure*}[!t]
+\centering
+\begin{tikzpicture}[
+  font=\footnotesize,
+  box/.style={draw, rounded corners=2pt, align=center, minimum height=8mm, inner sep=3pt},
+  fno/.style={box, fill=blue!8}, cnn/.style={box, fill=orange!12},
+  ev/.style={box, fill=green!8, align=left}, >={Stealth[]}, thick,
+]
+\node (u0) [box] at (0,0) {Input\\ $u_0$};
+\node (lift) [fno] at (2.4,1.05) {Lift $P$};
+\node (four) [fno] at (5.0,1.05) {\shortstack{Fourier layer $\times L$\\[1pt] \scriptsize FFT $\cdot$ keep low-$k$ modes $\hat W_k$ $\cdot$ iFFT $+$ local $1{\times}1$}};
+\node (proj) [fno] at (8.0,1.05) {Project $Q$};
+\node (conv) [cnn] at (5.0,-1.05) {\shortstack{Local conv $\times L$\\[1pt] \scriptsize kernel 3, circular padding, residual}};
+\node (pred) [box] at (10.7,0) {\shortstack{Prediction\\ $u(T)$}};
+\node (ev) [ev] at (14.2,0) {\shortstack[l]{\textbf{Evaluation}\\[1pt] \scriptsize band error $e^{\mathrm{abs}}_b$, $\phi_b$\\ \scriptsize resolution $128{\to}256$\\ \scriptsize regime sweep $\nu$\\ \scriptsize Track B: FFT correlation}};
+\node[font=\scriptsize\itshape, blue!55!black] at (5.0,2.05) {FNO branch (spectral, global)};
+\node[font=\scriptsize\itshape, orange!60!black] at (5.0,-2.0) {CNN branch (local)};
+\draw[->] (u0) |- (lift);
+\draw[->] (lift) -- (four);
+\draw[->] (four) -- (proj);
+\draw[->] (u0) |- (conv);
+\draw[->] (proj) -| (pred);
+\draw[->] (conv) -| (pred);
+\draw[->] (pred) -- (ev);
+\end{tikzpicture}
+\caption{Benchmark architecture. An input field is mapped to the PDE solution by two matched budget model families, a Fourier neural operator whose spectral layer performs a global convolution as a multiplication of truncated modes, and a purely local convolutional network. Both are scored by the same evaluation battery, whose core is the band resolved error read together with the per band energy fraction, plus zero shot resolution generalization, the viscosity regime sweep, and the Track B correlation localizer.}
+\label{fig:arch}
+\end{figure*}
 
 \section{Related Work}
 Fourier neural operators learn a mapping between function spaces by multiplying a truncated set of Fourier modes with learned complex weights \cite{li2020fno}; the physics informed variant adds a PDE residual loss \cite{li2021pino}. On the representation side, random Fourier features let coordinate networks fit high frequency targets that a plain multilayer perceptron cannot, overcoming the spectral bias by which such networks learn low frequencies first \cite{tancik2020,rahaman2019}; the neural tangent kernel analysis of Fourier feature networks makes this precise \cite{wang2021eigenvector}. Global spectral mixing has also been used as a token mixer in vision and language \cite{rao2021gfnet,leethorp2021fnet}. Benchmark suites such as PDEBench \cite{takamoto2022pdebench} and PINN focused collections provide standardized PDE tasks, but report primarily scalar errors and do not combine a band resolved, energy weighted decomposition with a controlled regime boundary sweep. The classical result that the perceptually meaningful structure of natural images resides in the Fourier phase \cite{oppenheim1981} underlies our view of pattern matching as a spectral operation.
@@ -70,8 +114,18 @@ A fixed template is placed at a random location in a noisy field; the target is 
 \section{Experimental Setup}
 All comparisons are at a matched parameter budget of about $45{,}000$ to $46{,}000$ trainable parameters and a shared training protocol: identical optimizer (Adam), a cosine schedule, $400$ steps, batch size $16$, and identical data splits and normalization. Each cell is averaged over three seeds, reported as mean and standard deviation. Track A uses a spatial resolution of $128$ for training and evaluates zero shot at $256$. These are deliberately small, single machine CPU runs intended for reproducibility and methodological demonstration, not a large scale ranking; see limitations.
 
+\subsection{Implementation and reproducibility}
+The Burgers reference solver, all models, the metrics and the training loop are implemented in PyTorch and run on a single CPU. The full grid reported here, four viscosities times two architectures times three seeds for Track A together with the Track B signal to noise sweep, completes in under four minutes on a laptop class processor. Model widths are set by a parameter matched width search so that the Fourier operator and the convolutional network agree to within a few percent in trainable parameter count, which is what lets us attribute differences to architecture rather than capacity. The code, the full specification and the exact configuration that produced every number in this paper are released alongside it, and a machine readable results file records the raw per seed measurements as provenance.
+
 \section{Results}
-Table \ref{tab:tracka} reports Track A. Three findings stand out and are, we stress, honest rather than convenient.
+Table \ref{tab:tracka} reports Track A numerically and Fig.~\ref{fig:results} the same evidence visually. Three findings stand out and are, we stress, honest rather than convenient.
+
+\begin{figure*}[!tb]
+\centering
+\includegraphics[width=\textwidth]{figs/results}
+\caption{Benchmark evidence. (a) In distribution versus zero shot $2\times$ resolution relative $L^2$ error across viscosity: the FNO curves nearly coincide, whereas the CNN error jumps to $0.21$--$0.24$ at doubled resolution. (b) Resolution degradation ratio ($2\times$/in), log scale: the FNO stays near unity, the CNN degrades by $4.5$ to $13$. (c) Track B, template localization error versus signal to noise ratio: FFT cross correlation is sub pixel at high SNR and crosses the trivial center guess baseline near unity. Error bars in (a) are the standard deviation over three seeds.}
+\label{fig:results}
+\end{figure*}
 
 First, at matched budget the convolutional baseline is slightly more accurate in distribution across every viscosity, by roughly fifteen percent in relative $L^2$. The Fourier operator is not automatically more accurate on the training grid.
 
@@ -83,7 +137,7 @@ The high frequency band error (Table \ref{tab:tracka}, column $e^{\mathrm{abs}}_
 
 Table \ref{tab:trackb} reports Track B. The FFT cross correlation localizer reaches sub pixel accuracy at a signal to noise ratio of four and two, then crosses the trivial center guess baseline near unity and is uninformative below it. Pattern matching by correlation is thus both exactly a spectral operation and sharply noise limited, which frames the separability question we leave to future work.
 
-\begin{table*}[t]
+\begin{table*}[!tb]
 \caption{Track A: Burgers operator learning, FNO versus CNN at matched budget (about $45$--$46$k parameters), mean $\pm$ standard deviation over three seeds. ``in'' is in distribution relative $L^2$ at resolution $128$; ``$2\times$'' is zero shot relative $L^2$ at resolution $256$; ratio is $2\times$/in; $e^{\mathrm{abs}}_{\mathrm{top}}$ is the absolute error in the highest energy bearing band; log-spec is the log spectral distance.}
 \label{tab:tracka}
 \centering
@@ -106,7 +160,7 @@ $2\times10^{-3}$ & FNO & $0.0612 \pm 0.0009$ & $0.0672 \pm 0.0010$ & $1.10$ & $0
 \end{tabular}
 \end{table*}
 
-\begin{table}[t]
+\begin{table}[!htbp]
 \caption{Track B: template localization by FFT cross correlation versus a center guess baseline, normalized error on a $48\times48$ grid (one pixel $\approx 0.021$), $256$ samples.}
 \label{tab:trackb}
 \centering
@@ -126,12 +180,15 @@ $0.25$ & $0.408$  & $0.230$ \\
 \section{Discussion}
 The results support a precise, narrow version of the underlying thesis rather than the sweeping one. Fourier does not win on same grid accuracy at matched budget here; it wins on resolution transfer, and it wins because its inductive bias is tied to modes rather than to grid spacing. The practical consequence is a warning about evaluation: reporting only an in distribution scalar can invert the ranking relative to the property a practitioner may actually care about. This is, in spirit, a safety of the intended function argument applied to architectures: the useful artifact is not a mean score but a map of where a representation breaks and how one would detect it.
 
+A second thread connects Track B to the representation question. The classical result that the perceptually salient structure of a signal resides in its Fourier phase rather than its magnitude \cite{oppenheim1981} suggests that the natural axis separating a coherent pattern from broadband noise is phase coherence rather than a single frequency band, since white noise is spectrally flat while natural signal energy is concentrated, so their ratio, not their location, is what a filter can exploit. Our correlation localizer rests on exactly this, and its sharp collapse near unit signal to noise ratio marks where that separation ceases to be informative. A controlled study of phase based separability, and of adversarial as opposed to merely stochastic perturbations, is a natural next step.
+
 \section{Limitations}
 These are small, single machine CPU runs on a single PDE family at one resolution pair, with matched but modest parameter budgets and three seeds. They demonstrate the methodology and yield a clean, consistent signal, but they are not a large scale ranking and should not be read as one. The data must be spectrally calibrated: a target with negligible high frequency energy makes the spectral fidelity hypothesis untestable, which is why the energy fraction is reported alongside every band error. The shock regime is coupled to solver resolution: very small viscosity requires a finer grid to keep the reference solution itself resolved. Finally, the learned Track B comparison and the data efficiency axis H1c are specified but not yet run at scale.
 
 \section{Conclusion and Future Work}
 We presented a band resolved, budget controlled benchmark that reframes the Fourier versus convolution question from who wins to where the advantage lives. At matched budget the convolutional baseline is marginally better in distribution yet fragile under resolution change, while the Fourier operator is resolution robust; a purely spectral correlator demonstrates pattern matching as a Fourier operation up to a sharp noise limit. Future work runs the full viscosity sweep with error bars to pin the regime boundary, adds the learned Track B comparisons and the data efficiency curves, extends to two dimensional Navier Stokes for energy spectrum fidelity, and ablates the FNO mode count and the Fourier feature bandwidth.
 
+\clearpage
 \begin{thebibliography}{99}
 \bibitem{li2020fno} Z. Li et al., ``Fourier Neural Operator for Parametric Partial Differential Equations,'' arXiv:2010.08895, 2020.
 \bibitem{li2021pino} Z. Li et al., ``Physics-Informed Neural Operator for Learning Partial Differential Equations,'' arXiv:2111.03794, 2021.
