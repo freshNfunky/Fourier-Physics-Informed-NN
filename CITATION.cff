@@ -1,0 +1,18 @@
+cff-version: 1.2.0
+message: "If you use this software or its results, please cite it as below."
+title: "Fourier-Physics-Informed-NN: a band-resolved, budget-controlled benchmark of spectral vs local neural operators, with a physics-informed spectral-bias study"
+abstract: "A controlled benchmark separating three Fourier constructs (spectral convolution, Fourier-feature encodings, classical correlation) and evaluating each against its local or classical counterpart at matched budget, plus a PINN spectral-bias demonstration and an explainer animation."
+authors:
+  - family-names: Schaller
+    given-names: Felix
+    orcid: "https://orcid.org/0000-0002-3218-3214"
+repository-code: "https://github.com/freshNfunky/Fourier-Physics-Informed-NN"
+license: MIT
+version: 0.1.0
+date-released: 2026-09-02
+keywords:
+  - Fourier neural operator
+  - physics-informed neural networks
+  - spectral bias
+  - benchmark
+  - resolution generalization

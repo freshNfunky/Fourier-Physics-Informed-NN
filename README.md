@@ -4,6 +4,10 @@ Ein kontrollierter Benchmark zur Frage, wo Fourier-basierte Repräsentationen lo
 
 Arbeitsname der Suite: SpectroBench.
 
+![Fourier vs plain PINN: the Fourier network catches the fine detail the plain one misses](pinn/media/spectral_bias.gif)
+
+*Sofort sichtbar: das Fourier-Netz faengt die feine Schwingung, das plain-Netz bleibt glatt und blind. Interaktive Demo unter `pinn/` und als HuggingFace Space in `space/`. Publikations- und Kanalplan in `docs/PUBLISHING.md`.*
+
 ## Motivation
 
 Die Leitthese lautet, dass Fourier-Transformation und Fourier-Reihe im Machine Learning unterschätzt werden und dass klassisches pattern matching im Kern eine spektrale Operation ist. In ihrer naiven Form (Fourier ist genauer als CNN auf PDEs) ist diese These bereits erschöpfend publiziert und damit kein Beitrag. Der Beitrag dieses Repos liegt an drei Stellen, die die vorhandenen Suiten (PDEBench, PINNacle, GFNet) nicht sauber besetzen: der bandaufgelöste Fehler, die Auflösungsgeneralisierung und die Regime-Grenze über einen kontrollierten Diskontinuitätsknopf.
