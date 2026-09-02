@@ -38,6 +38,27 @@ because it bears on the compressible-vs-incompressible framing of the PINN work.
 Favor compressible / finite-propagation formulations so the model respects
 "nothing teleports." This is a concrete framing hook, not just philosophy.
 
+## Precisation (Felix, refined)
+- Bernoulli is the energy-conservation law, mathematically correct in itself, but
+  partly taught and applied wrongly.
+- The energy balance is the actual problem: in a closed system the pressure
+  cannot be restored, because acceleration work in the total balance needs a
+  gradient (Gefaelle), which is necessary to supply the inertial force as the
+  reaction (actio/reactio). By the laws of dynamics, acceleration work can only
+  exist when the total balance of static forces is NOT zero, yet most who teach
+  Bernoulli / potential flow assume it is zero.
+- Thesis (in the preprint): that cannot hold. A residual balance of kinetic
+  energy must always remain as a residual turbulence, so an entropy increase
+  necessarily occurs for the equation to balance. In other words, the idealized
+  loss-free Bernoulli / potential-flow picture is inconsistent with the dynamics
+  of a real closed cycle; dissipation (entropy production) is mandatory.
+- Honest note for the resumed discussion: within its stated inviscid, loss-free
+  assumptions Bernoulli is an exact first integral and self-consistent; the
+  thesis is really about the physical *realizability* of those assumptions in a
+  dynamic closed cycle. That is an arguable and interesting line (cf. d'Alembert's
+  paradox: potential flow predicts zero drag), to be engaged against the preprint's
+  specific mechanism.
+
 ## TODO when resumed
 - Read the preprint in full and engage its specific argument.
 - Optionally open this as a GitHub issue once the repo is pushed.
