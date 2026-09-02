@@ -72,11 +72,10 @@ with gr.Blocks(title="Fourier vs plain PINN") as demo:
     with gr.Row():
         m = gr.Slider(4, 20, value=14, step=1, label="high mode m (fine-detail frequency)")
         K = gr.Slider(2, 24, value=16, step=1, label="Fourier feature modes K")
-        steps = gr.Slider(500, 4000, value=2000, step=100, label="training steps")
+        steps = gr.Slider(500, 4000, value=1500, step=100, label="training steps")
     btn = gr.Button("Run", variant="primary")
     out = gr.Plot()
     btn.click(run, [m, K, steps], out)
-    demo.load(run, [m, K, steps], out)
 
 if __name__ == "__main__":
     demo.launch()
