@@ -10,6 +10,14 @@ Arbeitsname der Suite: SpectroBench.
 
 **Live-Demo (HuggingFace Space):** https://huggingface.co/spaces/freshNfunky/fourier-vs-plain-pinn
 
+## Adaptive Fortsetzung (in Arbeit)
+
+Aktuelle Richtung über den Benchmark hinaus: ein Fourier-Feature-PINN, das die Navier-Stokes-Impulsresiduen erfüllt, kombiniert mit einem fraktalen, octree-adaptiven Gitter, das Auflösung nur dorthin legt, wo die Strömung Struktur trägt, und ihr durch die Zeit folgt. Im Beispiel unten verfolgt es eine ablösende Wirbelstraße mit rund einem Fünftel der Zellen eines uniformen Gitters.
+
+![Fraktales octree-adaptives Gitter, das eine Wirbelstraße verfolgt](media/fractal_grid_tracking.gif)
+
+*Prototyp. Das Kriterium: Repräsentation an die Strömung anpassen, Freiheitsgrade dorthin, wo die Information ist.*
+
 ## Motivation
 
 Die Leitthese lautet, dass Fourier-Transformation und Fourier-Reihe im Machine Learning unterschätzt werden und dass klassisches pattern matching im Kern eine spektrale Operation ist. In ihrer naiven Form (Fourier ist genauer als CNN auf PDEs) ist diese These bereits erschöpfend publiziert und damit kein Beitrag. Der Beitrag dieses Repos liegt an drei Stellen, die die vorhandenen Suiten (PDEBench, PINNacle, GFNet) nicht sauber besetzen: der bandaufgelöste Fehler, die Auflösungsgeneralisierung und die Regime-Grenze über einen kontrollierten Diskontinuitätsknopf.
