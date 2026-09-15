@@ -93,6 +93,10 @@ Eine methodische Feinheit ist bereits eingebaut: der bandrelative Fehler ist in 
 
 Zwei eigenstaendige Preprints liegen unter `paper/`, jeweils fuer eine eigene Zenodo-DOI: das Kernel-Benchmark-Paper `paper/whitepaper.pdf` (FNO vs CNN, bandaufgeloest, Aufloesungsgeneralisierung, Track B) und das PINN-Spectral-Bias-Paper `paper/pinn_preprint.pdf` (Fourier-Feature gegen plain im physik-informierten Verlust).
 
+Veroeffentlicht auf Zenodo:
+- Where Fourier Beats Convolution (Kernel-Benchmark): https://doi.org/10.5281/zenodo.22261198
+- Fourier Features Overcome the Spectral Bias of Physics-Informed Networks: https://doi.org/10.5281/zenodo.22261322
+
 Ein IEEE-Whitepaper mit der vollstaendigen Dokumentation aller Benchmarks liegt unter `paper/`: `paper/whitepaper.tex` (Quelle, IEEEtran) und `paper/whitepaper.pdf` (kompiliert, vier Seiten). `paper/benchmarks.py` erzeugt die dokumentierten Zahlen, `paper/results.json` haelt sie als Provenance fest. Zahlen neu erzeugen mit `python paper/benchmarks.py`, Abbildungen mit `python paper/make_figures.py`, dann neu kompilieren mit `pdflatex paper/whitepaper.tex` (zweimal fuer Referenzen). Das Paper enthaelt ein TikZ-Architektur-Schema (Fig. 1) und die Ergebnis-Plots (Fig. 2).
 
 - PINN-Domaene: physik-informierten Trainings-Track ergaenzen (PDE-Residualverlust via Autodiff) und benchmarken, ob der Fourier-Ansatz (Fourier-Feature-MLP bzw. PINO) ein reines PINN und die datengetriebenen Surrogate schlaegt, mit denselben band-, aufloesungs- und regimeaufgeloesten Metriken. Siehe `BACKLOG.md`.
