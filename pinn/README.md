@@ -48,6 +48,27 @@ Fourier floor.
 python pinn/pinn_spectral_bias.py --plot
 ```
 
+## Stress test: out-of-band forcing
+
+The demo above keeps the fine mode inside the embedding. `out_of_band_stress.md`
+asks the harder question: does the advantage survive when the forcing injects a
+wavenumber *above* the K=16 band? It does. With the embedding fixed at K=16 and
+the fine mode pushed to m=26, ten harmonics past the cutoff, the Fourier net
+still recovers it to rel_l2 ~1e-4 while the plain net drops it:
+
+| m  | band | plain, gap at m | Fourier K=16, gap at m | true amplitude |
+|----|------|-----------------|------------------------|----------------|
+| 16 | in   | 0.031           | ~0                     | 0.0625         |
+| 20 | OUT  | 0.025           | ~0                     | 0.0500         |
+| 26 | OUT  | 0.019           | ~0                     | 0.0385         |
+
+![out-of-band recovery](figs/oob_sweep.png)
+
+The tanh stack synthesizes the higher harmonic from intermodulation of the
+embedded band, so the embedding is not a hard low-pass. See
+[`out_of_band_stress.md`](out_of_band_stress.md) for the spectrum plot, the full
+table (with global rel_l2), and the mechanism.
+
 ## Relation to the rest
 
 This confirms the mechanism the paper attributes to Fourier features (Tancik
