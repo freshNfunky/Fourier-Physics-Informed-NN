@@ -67,7 +67,9 @@ still recovers it to rel_l2 ~1e-4 while the plain net drops it:
 The tanh stack synthesizes the higher harmonic from intermodulation of the
 embedded band, so the embedding is not a hard low-pass. See
 [`out_of_band_stress.md`](out_of_band_stress.md) for the spectrum plot, the full
-table (with global rel_l2), and the mechanism.
+table (with global rel_l2), the mechanism, and the causal ablation that pins
+recovery to the required intermodulation order (a sharp threshold near order 7
+at this budget).
 
 ## Relation to the rest
 

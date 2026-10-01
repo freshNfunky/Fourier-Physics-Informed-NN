@@ -53,6 +53,58 @@ matched budget instead of crawling toward it the way the plain net does.
 Widening K to cover the mode is not required for the recovery; in the sweep it
 only sharpens conditioning.
 
+## Causal ablation: which variable actually gates recovery
+
+Is the out-of-band recovery caused by the presence of harmonics that can
+synthesize the target through intermodulation? The direct test is a
+frequency-subset ablation at fixed parameter count and budget.
+
+First, the naive form of the test does not bite. Holding the embedding at N = 8
+frequencies (identical parameter count) and removing the specific pairs that sum
+to 26, the network still recovers the mode:
+
+| embedding (N=8 unless noted) | route to 26 at low order | gap at m=26 | rel L2 |
+|------------------------------|--------------------------|-------------|--------|
+| plain base {1}               | no (needs order 26)      | 0.0192      | 0.0385 |
+| K=16 full {1..16}            | yes                      | 0.0000      | 0.0001 |
+| {1..8}                       | no (2nd-order max 16)    | 0.0000      | 0.0004 |
+| {1..6, 13}                   | yes (2x13)               | 0.0000      | 0.0002 |
+| {1..6, 10, 16}               | yes (10+16)              | 0.0000      | 0.0001 |
+| {1..6, 11, 15}               | yes (11+15)              | 0.0000      | 0.0002 |
+| {9..16} (no fundamental)     | yes                      | 0.0000      | 0.0002 |
+
+Every parameter-matched embedding recovers m = 26, including {1..8} with no
+second-order route and {9..16} with no fundamental at all (it rebuilds the
+dominant low mode from differences). A four-layer tanh stack reaches 26 through
+many redundant higher-order intermodulation routes, so pulling one combination
+changes nothing.
+
+The variable that is causal is the minimum intermodulation order required to
+synthesize the target from the embedded band. Holding capacity at N = 2 embeddings
+{1, q} and raising that order through the choice of q:
+
+| embedding | min order to 26 | rel L2 | outcome |
+|-----------|-----------------|--------|---------|
+| {1, 13}   | 2               | 0.0005 | recovered |
+| {1, 9}    | 4               | 0.0010 | recovered |
+| {1, 7}    | 6               | 0.0013 | recovered |
+| {1, 5}    | 6               | 0.0013 | recovered |
+| {1, 4}    | 8               | 0.0386 | mode dropped |
+| {1, 3}    | 10              | 0.0386 | mode dropped |
+| {1, 2}    | 13              | 0.0386 | mode dropped |
+| plain {1} | 26              | 0.0386 | mode dropped |
+
+![Recovery vs required intermodulation order](figs/order_threshold.png)
+
+Recovery degrades predictably with the required order and collapses past a sharp
+threshold near order 7 at this budget, where the error jumps to the mode's own
+amplitude (the fine component is dropped entirely). Plain {1}, which must reach 26
+as the 26th self-harmonic of a single frequency, is just the far end of the same
+curve. So the mechanism is causal and it is spectral bias recursed: not a wall in
+what the network can represent, but a rate law in the synthesis order the optimizer
+has to climb. Moving the training budget moves the threshold. Scripts:
+`ablation_m26.py` (frequency-subset) and `order_gradient.py` (order sweep).
+
 ## Scope
 
 This is a controlled 1D, first-order, periodic setting with a single injected
